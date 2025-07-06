@@ -14,6 +14,8 @@
 #include <unicode/locdspnm.h> // LocaleDisplayNames
 #include <unicode/listformatter.h> // For icu::ListFormatter
 
+using namespace Qt::Literals::StringLiterals;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -126,10 +128,10 @@ void MainWindow::updateDateLabels(QLocale & locale, icu::Locale &icuLocale)
     } else {
         results << toQString(result1) << toQString(result2) << toQString(result3) << toQString(result4) << toQString(combinedString) << toQString(result6);
 
-        results << QDateTime::currentDateTime().toString(locale.dateTimeFormat(QLocale::NarrowFormat)) + locale.dateTimeFormat(QLocale::NarrowFormat);
-        results << QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::NarrowFormat)) + locale.dateFormat(QLocale::NarrowFormat);
-        results << QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::ShortFormat)) + locale.dateFormat(QLocale::ShortFormat);
-        results << QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::LongFormat)) + locale.dateFormat(QLocale::LongFormat);
+        results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateTimeFormat(QLocale::NarrowFormat)), locale.dateTimeFormat(QLocale::NarrowFormat));
+        results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::NarrowFormat)), locale.dateFormat(QLocale::NarrowFormat));
+        results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::ShortFormat)), locale.dateFormat(QLocale::ShortFormat));
+        results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::LongFormat)), locale.dateFormat(QLocale::LongFormat));
         ui->relLabel->setText(results.join('\n'));
     }
 }
@@ -152,6 +154,17 @@ void MainWindow::updateRegionName(icu_77::Locale &sysLocale)
         results << QString("%1:\t%2 - %3").arg(localeCode, toQString(originalLanguageName), toQString(dialectName));
     }
     ui->regLabel->setText(results.join('\n'));
+
+    if (!ui->lineEdit->text().isEmpty()) {
+        icu::UnicodeString dialectName;
+        icu::Locale currentLocale(ui->lineEdit->text().toStdString().c_str());
+
+        icu::UnicodeString originalLanguageName;
+        currentLocale.getDisplayName(currentLocale, originalLanguageName);
+
+        displayNames->localeDisplayName(currentLocale, dialectName);
+        ui->testLocaleNameLabel->setText(QString("%1:\t%2 - %3").arg(ui->lineEdit->text(), toQString(originalLanguageName), toQString(dialectName)));
+    }
 }
 
 void MainWindow::updateListLabel(icu_77::Locale &icuLocale)
@@ -203,5 +216,11 @@ void MainWindow::updateListLabel(icu_77::Locale &icuLocale)
 void MainWindow::on_comboBox_textActivated(const QString &arg1)
 {
     localeChanged(arg1);
+}
+
+
+void MainWindow::on_lineEdit_returnPressed()
+{
+    localeChanged(ui->comboBox->lineEdit()->text());
 }
 

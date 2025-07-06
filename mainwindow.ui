@@ -167,6 +167,19 @@
           </property>
          </spacer>
         </item>
+        <item>
+         <widget class="QLabel" name="testLocaleNameLabel">
+          <property name="text">
+           <string>Enter locale code below and press enter</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit"/>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_4">
