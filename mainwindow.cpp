@@ -11,6 +11,7 @@
 #include <unicode/dtfmtsym.h>   // For DateFormatSymbols
 #include <unicode/reldatefmt.h> // For RelativeDateTimeFormatter
 #include <unicode/smpdtfmt.h> // SimpleDateFormat
+#include <unicode/measfmt.h> // MeasureFormat
 #include <unicode/locdspnm.h> // LocaleDisplayNames
 #include <unicode/listformatter.h> // For icu::ListFormatter
 
@@ -123,10 +124,17 @@ void MainWindow::updateDateLabels(QLocale & locale, icu::Locale &icuLocale)
     formatter1.format(UDAT_DIRECTION_LAST, UDAT_ABSOLUTE_DAY, result5, status);
     formatter1.format(UDAT_DIRECTION_LAST, UDAT_ABSOLUTE_SUNDAY, result6, status);
     formatter1.combineDateAndTime(result5, sampleTime, combinedString, status);
+
+    MeasureFormat mf(icuLocale, UMEASFMT_WIDTH_WIDE, status);
+    UnicodeString result7;
+    icu::Measure minutes(5, icu::MeasureUnit::createMinute(status), status);
+    FieldPosition fpos;
+    mf.formatMeasures(&minutes, 1, result7, fpos, status);
+
     if (U_FAILURE(status)) {
         std::cerr << "Error formatting 2: " << u_errorName(status) << std::endl;
     } else {
-        results << toQString(result1) << toQString(result2) << toQString(result3) << toQString(result4) << toQString(combinedString) << toQString(result6);
+        results << toQString(result1) << toQString(result2) << toQString(result3) << toQString(result4) << toQString(combinedString) << toQString(result6) << toQString(result7);
 
         results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateTimeFormat(QLocale::NarrowFormat)), locale.dateTimeFormat(QLocale::NarrowFormat));
         results << u"%1 (%2)"_s.arg(QDateTime::currentDateTime().toString(locale.dateFormat(QLocale::NarrowFormat)), locale.dateFormat(QLocale::NarrowFormat));
@@ -201,7 +209,7 @@ void MainWindow::updateListLabel(icu_77::Locale &icuLocale)
         status
         );
     if (U_FAILURE(status)) {
-        std::cerr << "Error creating ListFormatter (en, and): " << u_errorName(status) << std::endl;
+        std::cerr << "Error creating ListFormatter (en, or): " << u_errorName(status) << std::endl;
         return;
     }
 
